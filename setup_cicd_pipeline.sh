@@ -33,3 +33,4 @@ git status -s
 echo "=================================================="
 echo " CI/CD Automation Setup Successfully Executed!"
 echo "=================================================="
+

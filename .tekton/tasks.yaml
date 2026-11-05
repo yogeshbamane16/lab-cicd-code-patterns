@@ -154,3 +154,4 @@ spec:
         echo "Executing OpenShift CLI deployment..."
         $(params.SCRIPT)
         echo "Deployment completed successfully."
+

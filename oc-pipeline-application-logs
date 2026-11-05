@@ -9,3 +9,4 @@ $ oc logs -f deployment/hit-counter
 10.128.2.1 - - [05/Nov/2026:20:20:12 +0000] "GET /hits HTTP/1.1" 200 14 "-" "curl/7.61.1"
 10.128.2.1 - - [05/Nov/2026:20:20:15 +0000] "GET /health HTTP/1.1" 200 18 "-" "kube-probe/1.25"
 [2026-11-05 20:20:20 +0000] [7] [INFO] SERVICERUNNING - Status: HEALTHY, Active Replicas: 1/1
+

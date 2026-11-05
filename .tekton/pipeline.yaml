@@ -88,3 +88,4 @@ spec:
             oc rollout status deployment/hit-counter
       runAfter:
         - build
+
