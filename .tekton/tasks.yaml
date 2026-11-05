@@ -1,0 +1,156 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: cleanup
+spec:
+  description: Cleans up the workspace directory
+  workspaces:
+    - name: source
+  steps:
+    - name: clean
+      image: alpine:3
+      workingDir: $(workspaces.source.path)
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        echo "Cleaning up workspace: $(workspaces.source.path)"
+        if [ -d "$(workspaces.source.path)" ]; then
+          rm -rf "$(workspaces.source.path)"/*
+          rm -rf "$(workspaces.source.path)"/.[!.]*
+        fi
+        echo "Cleanup complete."
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  description: Clones a git repository into the workspace
+  workspaces:
+    - name: output
+  params:
+    - name: url
+      type: string
+      description: Repository URL
+    - name: revision
+      type: string
+      description: Revision to checkout
+      default: main
+  steps:
+    - name: clone
+      image: alpine/git:latest
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        echo "Cloning $(params.url) branch $(params.revision)..."
+        git clone --depth 1 -b $(params.revision) $(params.url) .
+        echo "Clone finished successfully."
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: flake8
+spec:
+  description: Lints Python code using flake8
+  workspaces:
+    - name: source
+  params:
+    - name: image
+      type: string
+      default: "python:3.9-slim"
+    - name: args
+      type: array
+      default: ["--count", "--max-complexity=10", "--max-line-length=127", "--statistics"]
+  steps:
+    - name: lint
+      image: $(params.image)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
+        pip install --upgrade pip flake8
+        flake8 service tests "$@"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose
+spec:
+  description: Executes Python unit tests using nose
+  workspaces:
+    - name: source
+  params:
+    - name: args
+      type: string
+      default: "-v --with-spec --spec-color"
+  steps:
+    - name: run-tests
+      image: python:3.9-slim
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
+        python -m pip install --upgrade pip wheel
+        pip install -r requirements.txt
+        nosetests $(params.args)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah
+spec:
+  description: Builds container images using buildah
+  workspaces:
+    - name: source
+  params:
+    - name: IMAGE
+      type: string
+      description: Reference of the image to build and push
+    - name: DOCKERFILE
+      type: string
+      default: ./Dockerfile
+    - name: CONTEXT
+      type: string
+      default: .
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:v1.23.3
+      workingDir: $(workspaces.source.path)
+      securityContext:
+        privileged: true
+      script: |
+        #!/usr/bin/env bash
+        set -e
+        echo "Building image $(params.IMAGE)..."
+        buildah --storage-driver=vfs bud --format=docker -f $(params.DOCKERFILE) -t $(params.IMAGE) $(params.CONTEXT)
+        echo "Image build completed."
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: openshift-client
+spec:
+  description: Executes OpenShift CLI commands to deploy applications
+  workspaces:
+    - name: source
+  params:
+    - name: SCRIPT
+      type: string
+      description: OpenShift oc commands script to run
+      default: |
+        oc apply -f deploy/
+        oc rollout status deployment/hit-counter
+  steps:
+    - name: oc-deploy
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env bash
+        set -e
+        echo "Executing OpenShift CLI deployment..."
+        $(params.SCRIPT)
+        echo "Deployment completed successfully."

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hit-counter
+  labels:
+    app: hit-counter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hit-counter
+  template:
+    metadata:
+      labels:
+        app: hit-counter
+    spec:
+      containers:
+        - name: hit-counter
+          image: image-registry.openshift-image-registry.svc:5000/sn-labs-yogeshbamane16/hit-counter:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hit-counter
+  labels:
+    app: hit-counter
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: hit-counter
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hit-counter
+  labels:
+    app: hit-counter
+spec:
+  to:
+    kind: Service
+    name: hit-counter
+  port:
+    targetPort: http

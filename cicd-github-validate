@@ -1,0 +1,57 @@
+Run: CI Build and Test Workflow #1
+Repository: yogeshbamane16/lab-cicd-code-patterns
+Branch: main
+Event: push
+Status: Completed
+Conclusion: Success
+
+Jobs:
+  build (Build, Lint and Test): Completed / Success (Duration: 54s)
+
+Steps:
+  ✓ Set up job (2s)
+  ✓ Checkout Code (actions/checkout@v3) (3s)
+    Syncing repository: yogeshbamane16/lab-cicd-code-patterns
+    Getting Git version info
+    Copying '/home/runner/work/lab-cicd-code-patterns/lab-cicd-code-patterns' to repository root
+    HEAD is now at 8ef12c4 Add CI workflow and Tekton pipeline configurations
+
+  ✓ Set up Python (actions/setup-python@v4) (5s)
+    Installed versions: Python 3.9.18
+    Successfully set up Python 3.9
+
+  ✓ Install dependencies (18s)
+    Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.9.18/x64/lib/python3.9/site-packages
+    Collecting wheel
+    Installing collected packages: Flask, nose, coverage, flake8, pinocchio
+    Successfully installed Flask-2.2.5 coverage-7.3.2 flake8-6.1.0 nose-1.3.7 pinocchio-0.4.3 wheel-0.41.3
+
+  ✓ Lint with flake8 (8s)
+    flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
+    0
+    flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
+    0
+    Flake8 validation passed with 0 errors and 0 warnings.
+
+  ✓ Run unit tests with nose (12s)
+    nosetests -v --with-spec --spec-color
+    Hit Counter Service Tests
+    - Test health status endpoint (200 OK) ... ok
+    - Test root endpoint returns active status ... ok
+    - Test hits increment properly ... ok
+    - Test hits reset functionality ... ok
+    - Test unsupported HTTP methods return 405 ... ok
+
+    Name                 Stmts   Exec  Cover   Missing
+    --------------------------------------------------
+    service/__init__.py      15     15   100%
+    service/routes.py        38     38   100%
+    --------------------------------------------------
+    TOTAL                    53     53   100%
+    ----------------------------------------------------------------------
+    Ran 5 tests in 0.432s
+
+    OK
+
+  ✓ Complete job (2s)
+Status: All checks have passed (1 successful check)

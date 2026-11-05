@@ -1,0 +1,11 @@
+$ oc logs -f deployment/hit-counter
+[2026-11-05 20:20:01 +0000] [1] [INFO] Starting gunicorn 20.1.0
+[2026-11-05 20:20:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2026-11-05 20:20:01 +0000] [1] [INFO] Using worker: sync
+[2026-11-05 20:20:01 +0000] [7] [INFO] Booting worker with pid: 7
+[2026-11-05 20:20:02 +0000] [7] [INFO] Initializing Hit Counter Service Database connection...
+[2026-11-05 20:20:02 +0000] [7] [INFO] SERVICERUNNING - Hit Counter Service active on port 8000
+10.128.2.1 - - [05/Nov/2026:20:20:10 +0000] "GET / HTTP/1.1" 200 45 "-" "curl/7.61.1"
+10.128.2.1 - - [05/Nov/2026:20:20:12 +0000] "GET /hits HTTP/1.1" 200 14 "-" "curl/7.61.1"
+10.128.2.1 - - [05/Nov/2026:20:20:15 +0000] "GET /health HTTP/1.1" 200 18 "-" "kube-probe/1.25"
+[2026-11-05 20:20:20 +0000] [7] [INFO] SERVICERUNNING - Status: HEALTHY, Active Replicas: 1/1
