@@ -17,7 +17,7 @@ This project automates Continuous Integration (CI) and Continuous Delivery (CD) 
 - `.tekton/pvc.yaml`: PersistentVolumeClaim definition for Tekton workspace.
 - `deploy/deployment.yaml`: OpenShift deployment, service, and route manifests.
 
-## Instructor
+## Instructor --
 John Rofrano, Senior Technical Staff Member, DevOps Champion, @ IBM Research
 
 ---
